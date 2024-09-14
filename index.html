@@ -76,6 +76,19 @@
       width: 300px;
     }
 
+    .checkbox-container {
+      display: none;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
     span#result {
       display: inline-block;
       font-size: 1rem;
@@ -117,9 +130,18 @@
 <body>
   <h1>Extract Specific Columns from Excel</h1>
   <input type="file" id="inputFile" accept=".xlsx, .xls" onchange="displayColumns()">
-  <select id="columnSelect" multiple>
+  <select id="columnSelect" multiple onchange="showStatusOptions()">
     <!-- Options will be dynamically populated here -->
   </select>
+
+  <!-- Status Filter Section -->
+  <div class="checkbox-container" id="statusCheckboxes">
+    <label><input type="checkbox" value="Aborted">Aborted</label><br>
+    <label><input type="checkbox" value="Initiated">Initiated</label><br>
+    <label><input type="checkbox" value="Unsuccessful">Unsuccessful</label><br>
+    <label><input type="checkbox" value="Shipped">Shipped</label><br>
+  </div>
+
   <button onclick="extractColumns()">Extract Columns</button>
   <br>
   <span id="result"></span>
@@ -168,6 +190,21 @@
       reader.readAsArrayBuffer(inputFile);
     }
 
+    function showStatusOptions() {
+      const columnSelect = document.getElementById('columnSelect');
+      const selectedOptions = Array.from(columnSelect.selectedOptions);
+      const statusCheckboxes = document.getElementById('statusCheckboxes');
+
+      // Show checkboxes if "Order Status" is selected
+      const statusColumnSelected = selectedOptions.some(option => option.text === "Order Status");
+
+      if (statusColumnSelected) {
+        statusCheckboxes.style.display = "block";
+      } else {
+        statusCheckboxes.style.display = "none";
+      }
+    }
+
     function extractColumns() {
       const selectedOptions = Array.from(document.getElementById('columnSelect').selectedOptions);
       const selectedIndexes = selectedOptions.map(option => parseInt(option.value));
@@ -177,8 +214,17 @@
         return;
       }
 
+      const statusCheckboxes = document.querySelectorAll('#statusCheckboxes input[type="checkbox"]:checked');
+      const selectedStatuses = Array.from(statusCheckboxes).map(checkbox => checkbox.value);
+
       // Filter the data to only include the selected columns
-      const filteredData = sheetData.map(row => selectedIndexes.map(index => row[index]));
+      let filteredData = sheetData.map(row => selectedIndexes.map(index => row[index]));
+
+      // Apply status filter if the "Order Status" column is selected and checkboxes are checked
+      const statusColumnIndex = sheetData[0].indexOf("Order Status");
+      if (selectedStatuses.length > 0 && selectedIndexes.includes(statusColumnIndex)) {
+        filteredData = filteredData.filter(row => selectedStatuses.includes(row[selectedIndexes.indexOf(statusColumnIndex)]));
+      }
 
       // Create a new workbook with filtered data
       const newWorkbook = XLSX.utils.book_new();
