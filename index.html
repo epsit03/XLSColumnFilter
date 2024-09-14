@@ -47,6 +47,7 @@
       background-color: #5A9FDC;
       color: white;
       border: none;
+      margin-top: 10px;
       padding: 12px 24px;
       border-radius: 25px;
       font-size: 1rem;
@@ -79,12 +80,11 @@
     #columnSelect {
       width: 70%;
       text-align: center;
-      padding: 10px;
+      padding: 5px;
       border: 2px solid #5A9FDC;
       border-radius: 5px;
       cursor: pointer;
       transition: border-color 0.3s ease-in-out;
-      margin-bottom: 20px;
       opacity: 0;
       transform: translateY(-20px);
       animation: fadeIn 1.6s ease-in-out forwards;
@@ -93,14 +93,14 @@
     .checkbox-container {
       display: none;
       /* margin-top: 20px; */
-      padding: 20px;
+      padding: 10px;
       opacity: 0;
       animation: fadeIn 1.8s ease-in-out forwards;
     }
 
     /* Footer styling */
     footer {
-      position: absolute;
+      position: relative;
       bottom: 20px;
       font-size: 0.9rem;
       color: #4a4a4a;
@@ -127,19 +127,26 @@
     }
   </style>
 </head>
-<body>
+<body></body>
   <h1>Extract Specific Columns from Excel</h1>
   <input type="file" id="inputFile" accept=".xlsx, .xls" onchange="displayColumns()">
-  <select id="columnSelect" multiple onchange="showStatusOptions()">
+  <select id="columnSelect" multiple onchange="showOptions()">
     <!-- Options will be dynamically populated here -->
   </select>
 
   <!-- Status Filter Section -->
-  <div class="checkbox-container" id="statusCheckboxes">
+  <div class="checkbox-container" id="statusCheckboxes" style="display: none;">
+    <h3>Filter by Order Status</h3>
     <label><input type="checkbox" value="Aborted">Aborted</label><br>
     <label><input type="checkbox" value="Initiated">Initiated</label><br>
     <label><input type="checkbox" value="Unsuccessful">Unsuccessful</label><br>
     <label><input type="checkbox" value="Shipped">Shipped</label><br>
+  </div>
+
+  <!-- Merchant Param1 Filter Section -->
+  <div class="checkbox-container" id="merchantCheckboxes" style="display: none;">
+    <h3>Filter by Merchant Param1</h3>
+    <!-- Checkboxes will be dynamically added here -->
   </div>
 
   <button onclick="extractColumns()">Extract Columns</button>
@@ -173,7 +180,7 @@
         // Convert the worksheet to JSON format to easily manipulate the data
         sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-        // Get the headers (first row of the sheet)
+        // Adjust to consider the second row as headers (index 1)
         const headerRow = sheetData[1];
 
         // Populate the dropdown with column headers
@@ -190,10 +197,11 @@
       reader.readAsArrayBuffer(inputFile);
     }
 
-    function showStatusOptions() {
+    function showOptions() {
       const columnSelect = document.getElementById('columnSelect');
       const selectedOptions = Array.from(columnSelect.selectedOptions);
       const statusCheckboxes = document.getElementById('statusCheckboxes');
+      const merchantCheckboxes = document.getElementById('merchantCheckboxes');
 
       // Show checkboxes if "Order Status" is selected
       const statusColumnSelected = selectedOptions.some(option => option.text === "Order Status");
@@ -202,6 +210,32 @@
         statusCheckboxes.style.display = "block";
       } else {
         statusCheckboxes.style.display = "none";
+      }
+
+      // Show Merchant Param1 checkboxes
+      const merchantParam1Selected = selectedOptions.some(option => option.text === "Merchant Param1");
+
+      if (merchantParam1Selected) {
+        // Fetch distinct values from Merchant Param1 column
+        const merchantColumnIndex = sheetData[1].indexOf("Merchant Param1");
+        const merchantValues = new Set(sheetData.slice(2).map(row => row[merchantColumnIndex]));
+
+        // Populate the Merchant Param1 checkboxes dynamically
+        merchantCheckboxes.innerHTML = '<h3>Filter by Merchant Param1</h3>';
+        merchantValues.forEach(value => {
+          const checkboxLabel = document.createElement('label');
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = value;
+          checkboxLabel.appendChild(checkbox);
+          checkboxLabel.append(` ${value}`);
+          merchantCheckboxes.appendChild(checkboxLabel);
+          merchantCheckboxes.appendChild(document.createElement('br'));
+        });
+
+        merchantCheckboxes.style.display = "block";
+      } else {
+        merchantCheckboxes.style.display = "none";
       }
     }
 
@@ -214,22 +248,27 @@
         return;
       }
 
+      // Filter selected statuses
       const statusCheckboxes = document.querySelectorAll('#statusCheckboxes input[type="checkbox"]:checked');
       const selectedStatuses = Array.from(statusCheckboxes).map(checkbox => checkbox.value);
 
+      // Filter selected merchant param1 values
+      const merchantCheckboxes = document.querySelectorAll('#merchantCheckboxes input[type="checkbox"]:checked');
+      const selectedMerchantParams = Array.from(merchantCheckboxes).map(checkbox => checkbox.value);
+
       // Filter the data to only include the selected columns
-      let filteredData = sheetData.map(row => selectedIndexes.map(index => row[index]));
+      let filteredData = sheetData.slice(1).map(row => selectedIndexes.map(index => row[index])); // Adjust to skip the first row (headers)
 
       // Apply status filter if the "Order Status" column is selected and checkboxes are checked
-      const statusColumnIndex = sheetData[0].indexOf("Order Status");
-      const billNameColumnIndex = sheetData[0].indexOf("Bill Name");
+      const statusColumnIndex = sheetData[1].indexOf("Order Status");
+      const billNameColumnIndex = sheetData[1].indexOf("Bill Name");
 
       if (selectedStatuses.length > 0 && selectedIndexes.includes(statusColumnIndex)) {
         // Track bill names that have "Shipped" status
         const billNamesWithShipped = new Set();
 
         // First, identify the bill names that have "Shipped" as status
-        sheetData.forEach(row => {
+        sheetData.slice(2).forEach(row => { // Start from row 2, since headers are in row 1
           if (row[statusColumnIndex] === "Shipped") {
             billNamesWithShipped.add(row[billNameColumnIndex]);
           }
@@ -240,6 +279,16 @@
           const billName = row[selectedIndexes.indexOf(billNameColumnIndex)];
           const status = row[selectedIndexes.indexOf(statusColumnIndex)];
           return !billNamesWithShipped.has(billName) && selectedStatuses.includes(status);
+        });
+      }
+
+      // Apply merchant param1 filter
+      const merchantParam1ColumnIndex = sheetData[1].indexOf("Merchant Param1");
+
+      if (selectedMerchantParams.length > 0 && selectedIndexes.includes(merchantParam1ColumnIndex)) {
+        filteredData = filteredData.filter(row => {
+          const merchantParam1Value = row[selectedIndexes.indexOf(merchantParam1ColumnIndex)];
+          return selectedMerchantParams.includes(merchantParam1Value);
         });
       }
 
