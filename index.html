@@ -67,6 +67,15 @@
       transform: translateY(0);
     }
 
+    select {
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      border: 1px solid #5A9FDC;
+      height: 150px;
+      width: 300px;
+    }
+
     span#result {
       display: inline-block;
       font-size: 1rem;
@@ -107,7 +116,10 @@
 </head>
 <body>
   <h1>Extract Specific Columns from Excel</h1>
-  <input type="file" id="inputFile" accept=".xlsx, .xls">
+  <input type="file" id="inputFile" accept=".xlsx, .xls" onchange="displayColumns()">
+  <select id="columnSelect" multiple>
+    <!-- Options will be dynamically populated here -->
+  </select>
   <button onclick="extractColumns()">Extract Columns</button>
   <br>
   <span id="result"></span>
@@ -118,9 +130,10 @@
   </footer>
 
   <script>
-    function extractColumns() {
+    let sheetData = [];
+
+    function displayColumns() {
       const inputFile = document.getElementById('inputFile').files[0];
-      const desiredColumns = ["Order Datetime", "Gross Amount", "Bill Name", "Order Status", "Merchant Param1"];
 
       if (!inputFile) {
         alert('Please select an input file.');
@@ -136,47 +149,66 @@
         const worksheet = workbook.Sheets[sheetName];
 
         // Convert the worksheet to JSON format to easily manipulate the data
-        const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-        // Get the index of the desired columns based on headers in the first row
+        // Get the headers (first row of the sheet)
         const headerRow = sheetData[0];
-        const columnIndexes = desiredColumns.map(col => headerRow.indexOf(col));
 
-        // Filter rows to only include data from desired columns
-        const filteredData = sheetData.map(row => columnIndexes.map(index => row[index]));
-
-        // Create a new workbook with filtered data
-        const newWorkbook = XLSX.utils.book_new();
-        const newSheet = XLSX.utils.aoa_to_sheet(filteredData);  // Using array of arrays (aoa) for sheet creation
-        XLSX.utils.book_append_sheet(newWorkbook, newSheet, "Extracted Data");
-
-        // Correctly convert the output to binary
-        const wbOut = XLSX.write(newWorkbook, { bookType: 'xlsx', type: 'binary' });
-
-        // Convert the binary string to an ArrayBuffer
-        function s2ab(s) {
-          const buf = new ArrayBuffer(s.length); // Create buffer
-          const view = new Uint8Array(buf); // Create view on the buffer
-          for (let i = 0; i < s.length; i++) {
-            view[i] = s.charCodeAt(i) & 0xFF; // Store each byte
-          }
-          return buf;
-        }
-
-        // Create a downloadable blob
-        const blob = new Blob([s2ab(wbOut)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-
-        // Simulate a download link
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = "extracted_data.xlsx";
-        link.click();
-
-        window.URL.revokeObjectURL(link.href);
-        document.getElementById('result').textContent = "Download started!";
+        // Populate the dropdown with column headers
+        const columnSelect = document.getElementById('columnSelect');
+        columnSelect.innerHTML = ''; // Clear any existing options
+        headerRow.forEach((header, index) => {
+          const option = document.createElement('option');
+          option.value = index;
+          option.text = header;
+          columnSelect.add(option);
+        });
       };
 
       reader.readAsArrayBuffer(inputFile);
+    }
+
+    function extractColumns() {
+      const selectedOptions = Array.from(document.getElementById('columnSelect').selectedOptions);
+      const selectedIndexes = selectedOptions.map(option => parseInt(option.value));
+
+      if (selectedIndexes.length === 0) {
+        alert('Please select at least one column.');
+        return;
+      }
+
+      // Filter the data to only include the selected columns
+      const filteredData = sheetData.map(row => selectedIndexes.map(index => row[index]));
+
+      // Create a new workbook with filtered data
+      const newWorkbook = XLSX.utils.book_new();
+      const newSheet = XLSX.utils.aoa_to_sheet(filteredData);
+      XLSX.utils.book_append_sheet(newWorkbook, newSheet, "Extracted Data");
+
+      // Convert the output to binary
+      const wbOut = XLSX.write(newWorkbook, { bookType: 'xlsx', type: 'binary' });
+
+      // Convert the binary string to an ArrayBuffer
+      function s2ab(s) {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) {
+          view[i] = s.charCodeAt(i) & 0xFF;
+        }
+        return buf;
+      }
+
+      // Create a downloadable blob
+      const blob = new Blob([s2ab(wbOut)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+      // Simulate a download link
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = "extracted_data.xlsx";
+      link.click();
+
+      window.URL.revokeObjectURL(link.href);
+      document.getElementById('result').textContent = "Download started!";
     }
   </script>
 </body>
