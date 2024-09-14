@@ -9,9 +9,14 @@
 - Download the filtered data as a new Excel file.
 - Beautiful and smooth UI animations using CSS.
 
+
+https://github.com/user-attachments/assets/bfb17bcb-06e0-4b78-b675-38c922d50f94
+
+
 ## Demo
 
-![Demo](https://github.com/your-repo/demo.gif)
+Uploading Screen Recording 2024-09-14 193401.mp4…
+
 
 ## How It Works
 
