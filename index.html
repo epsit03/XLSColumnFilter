@@ -76,6 +76,22 @@
       animation: fadeIn 1.6s ease-in-out forwards;
     }
 
+    /* Footer styling */
+    footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.9rem;
+      color: #4a4a4a;
+      opacity: 0;
+      animation: fadeIn 2s ease-in-out forwards;
+      text-align: center;
+    }
+
+    footer span {
+      font-weight: bold;
+      color: #5A9FDC;
+    }
+
     /* Keyframes for smooth animations */
     @keyframes fadeIn {
       from {
@@ -95,6 +111,12 @@
   <button onclick="extractColumns()">Extract Columns</button>
   <br>
   <span id="result"></span>
+
+  <!-- Footer Section -->
+  <footer>
+    Designed & Developed by <span>Epsit Bhardwaj</span> &copy; 2024
+  </footer>
+
   <script>
     function extractColumns() {
       const inputFile = document.getElementById('inputFile').files[0];
