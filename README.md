@@ -15,7 +15,7 @@
 
 ## Demo
 
-![ScreenRecording2024-09-14193401-ezgif com-speed](https://github.com/user-attachments/assets/16cfbfff-b831-4b1b-916d-9976a617175c)
+
 
 ## How It Works
 
