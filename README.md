@@ -1,4 +1,4 @@
-# Excel Column Extractor
+# Excel Column Extractor (XLSColumnFilter)
 
 **Excel Column Extractor** is a web-based tool that allows users to upload an Excel file and extract specific columns from it. This tool uses [SheetJS](https://github.com/SheetJS/sheetjs) to handle Excel file parsing and creation. It offers a user-friendly interface with smooth animations and an elegant design.
 
@@ -34,3 +34,11 @@ You need a web browser with internet access to load the [SheetJS](https://cdnjs.
 1. Clone the repository:
    ```bash
    git clone https://github.com/epsit03/ExcelColumnExtractor.git
+
+## ToDo (Future Changes To Be Done...)
+- Enabling the user to dynamically input the columns he/she wants to fetch alongwith its data
+- Also, enabling the user to specify on which header are the columns located. (For e.g. If the column headers are in the first row, user will input header position = 1)
+- Make the UI more smooth and elegant.
+```As for now, this web-based tool is specific for an organisation's purpose but my purpose to make it open-source is to make the tool viable and useful for everyone across the global web.```
+
+## Feel free to open a PR if you have any prospective ideas ;-)
