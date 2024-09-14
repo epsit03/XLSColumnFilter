@@ -6,8 +6,8 @@
   <title>Extract Specific Columns from Excel</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
-    /* General styling */
-    body {
+     /* General styling */
+     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       flex-direction: column;
@@ -22,6 +22,9 @@
       font-size: 2rem;
       color: #4a4a4a;
       margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeIn 1s ease-in-out forwards;
     }
 
     input[type="file"] {
@@ -31,23 +34,13 @@
       cursor: pointer;
       transition: border-color 0.3s ease-in-out;
       margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeIn 1.2s ease-in-out forwards;
     }
 
-    select {
-      padding: 10px;
-      margin-bottom: 20px;
-      border-radius: 5px;
-      border: 1px solid #5A9FDC;
-      height: 150px;
-      width: 300px;
-    }
-
-    .checkbox-container {
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 5px;
-      background-color: #fff;
+    input[type="file"]:hover {
+      border-color: #478CC9;
     }
 
     button {
@@ -58,11 +51,20 @@
       border-radius: 25px;
       font-size: 1rem;
       cursor: pointer;
-      transition: background-color 0.3s ease-in-out;
+      transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeIn 1.4s ease-in-out forwards;
     }
 
     button:hover {
       background-color: #478CC9;
+      transform: translateY(-5px);
+    }
+
+    button:active {
+      background-color: #3569a3;
+      transform: translateY(0);
     }
 
     span#result {
@@ -70,19 +72,58 @@
       font-size: 1rem;
       color: #4a4a4a;
       margin-top: 20px;
+      opacity: 0;
+      animation: fadeIn 1.6s ease-in-out forwards;
     }
 
+    #columnSelect {
+      width: 70%;
+      text-align: center;
+      padding: 10px;
+      border: 2px solid #5A9FDC;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: border-color 0.3s ease-in-out;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeIn 1.6s ease-in-out forwards;
+    }
+
+    .checkbox-container {
+      display: none;
+      /* margin-top: 20px; */
+      padding: 20px;
+      opacity: 0;
+      animation: fadeIn 1.8s ease-in-out forwards;
+    }
+
+    /* Footer styling */
     footer {
       position: absolute;
       bottom: 20px;
       font-size: 0.9rem;
       color: #4a4a4a;
+      opacity: 0;
+      animation: fadeIn 2s ease-in-out forwards;
       text-align: center;
     }
 
     footer span {
       font-weight: bold;
       color: #5A9FDC;
+    }
+
+    /* Keyframes for smooth animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
