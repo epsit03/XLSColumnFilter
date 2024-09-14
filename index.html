@@ -133,7 +133,7 @@
         sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
         // Get the headers (first row of the sheet)
-        const headerRow = sheetData[0];
+        const headerRow = sheetData[1];
 
         // Populate the dropdown with column headers
         const columnSelect = document.getElementById('columnSelect');
