@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extract Specific Columns from Excel</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    /* General styling */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #4a4a4a;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      border: 2px solid #5A9FDC;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: border-color 0.3s ease-in-out;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeIn 1.2s ease-in-out forwards;
+    }
+
+    input[type="file"]:hover {
+      border-color: #478CC9;
+    }
+
+    button {
+      background-color: #5A9FDC;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeIn 1.4s ease-in-out forwards;
+    }
+
+    button:hover {
+      background-color: #478CC9;
+      transform: translateY(-5px);
+    }
+
+    button:active {
+      background-color: #3569a3;
+      transform: translateY(0);
+    }
+
+    span#result {
+      display: inline-block;
+      font-size: 1rem;
+      color: #4a4a4a;
+      margin-top: 20px;
+      opacity: 0;
+      animation: fadeIn 1.6s ease-in-out forwards;
+    }
+
+    /* Keyframes for smooth animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Extract Specific Columns from Excel</h1>
+  <input type="file" id="inputFile" accept=".xlsx, .xls">
+  <button onclick="extractColumns()">Extract Columns</button>
+  <br>
+  <span id="result"></span>
+  <script>
+    function extractColumns() {
+      const inputFile = document.getElementById('inputFile').files[0];
+      const desiredColumns = ["Order Datetime", "Gross Amount", "Bill Name", "Order Status", "Merchant Param1"];
+
+      if (!inputFile) {
+        alert('Please select an input file.');
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        const data = event.target.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+
+        // Convert the worksheet to JSON format to easily manipulate the data
+        const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // Get the index of the desired columns based on headers in the first row
+        const headerRow = sheetData[0];
+        const columnIndexes = desiredColumns.map(col => headerRow.indexOf(col));
+
+        // Filter rows to only include data from desired columns
+        const filteredData = sheetData.map(row => columnIndexes.map(index => row[index]));
+
+        // Create a new workbook with filtered data
+        const newWorkbook = XLSX.utils.book_new();
+        const newSheet = XLSX.utils.aoa_to_sheet(filteredData);  // Using array of arrays (aoa) for sheet creation
+        XLSX.utils.book_append_sheet(newWorkbook, newSheet, "Extracted Data");
+
+        // Correctly convert the output to binary
+        const wbOut = XLSX.write(newWorkbook, { bookType: 'xlsx', type: 'binary' });
+
+        // Convert the binary string to an ArrayBuffer
+        function s2ab(s) {
+          const buf = new ArrayBuffer(s.length); // Create buffer
+          const view = new Uint8Array(buf); // Create view on the buffer
+          for (let i = 0; i < s.length; i++) {
+            view[i] = s.charCodeAt(i) & 0xFF; // Store each byte
+          }
+          return buf;
+        }
+
+        // Create a downloadable blob
+        const blob = new Blob([s2ab(wbOut)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+        // Simulate a download link
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "extracted_data.xlsx";
+        link.click();
+
+        window.URL.revokeObjectURL(link.href);
+        document.getElementById('result').textContent = "Download started!";
+      };
+
+      reader.readAsArrayBuffer(inputFile);
+    }
+  </script>
+</body>
+</html>
