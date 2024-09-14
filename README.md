@@ -36,7 +36,7 @@ You need a web browser with internet access to load the [SheetJS](https://cdnjs.
    git clone https://github.com/epsit03/ExcelColumnExtractor.git
 
 ## ToDo (Future Changes To Be Done...)
-- Enabling the user to dynamically input the columns he/she wants to fetch alongwith its data
+- Enabling the user to dynamically input the columns he/she wants to fetch alongwith its data (Update: Feature implemented  and Working ✅ )
 - Also, enabling the user to specify on which header are the columns located. (For e.g. If the column headers are in the first row, user will input header position = 1)
 - Make the UI more smooth and elegant.
 ```As for now, this web-based tool is specific for an organisation's purpose but my purpose to make it open-source is to make the tool viable and useful for everyone across the global web.```
