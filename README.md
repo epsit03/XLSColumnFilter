@@ -10,13 +10,12 @@
 - Beautiful and smooth UI animations using CSS.
 
 
-https://github.com/user-attachments/assets/bfb17bcb-06e0-4b78-b675-38c922d50f94
+<!-- https://github.com/user-attachments/assets/bfb17bcb-06e0-4b78-b675-38c922d50f94 -->
 
 
 ## Demo
 
-Uploading Screen Recording 2024-09-14 193401.mp4…
-
+![ScreenRecording2024-09-14193401-ezgif com-speed](https://github.com/user-attachments/assets/16cfbfff-b831-4b1b-916d-9976a617175c)
 
 ## How It Works
 
