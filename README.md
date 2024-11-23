@@ -42,3 +42,4 @@ You need a web browser with internet access to load the [SheetJS](https://cdnjs.
 ```As for now, this web-based tool is specific for an organisation's purpose but my purpose to make it open-source is to make the tool viable and useful for everyone across the global web.```
 
 ## Feel free to open a PR if you have any prospective ideas ;-)
+---
