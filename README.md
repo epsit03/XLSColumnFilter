@@ -12,7 +12,6 @@
 
 <!-- https://github.com/user-attachments/assets/bfb17bcb-06e0-4b78-b675-38c922d50f94 -->
 
-
 ## Demo
 
 ![](https://github.com/epsit03/XLSColumnFilter/blob/main/assets/ScreenRecording2024-09-14193401-ezgif.com-speed.gif)
